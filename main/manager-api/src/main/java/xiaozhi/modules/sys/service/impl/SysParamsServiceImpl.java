@@ -37,7 +37,7 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
     @Override
     public PageData<SysParamsDTO> page(Map<String, Object> params) {
         IPage<SysParamsEntity> page = baseDao.selectPage(
-                getPage(params, Constant.CREATE_DATE, false),
+                getPage(params, null, false),
                 getWrapper(params));
 
         return getPageData(page, SysParamsDTO.class);
@@ -125,6 +125,13 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
                     throw new RenException(ErrorCode.PARAM_BOOLEAN_INVALID);
                 }
                 break;
+            case "json":
+                try {
+                    JsonUtils.parseObject(paramValue, Object.class);
+                } catch (Exception e) {
+                    throw new RenException(ErrorCode.PARAM_JSON_INVALID);
+                }
+                break;
             default:
                 throw new RenException(ErrorCode.PARAM_TYPE_INVALID);
         }
@@ -132,11 +139,13 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void delete(Long[] ids) {
+    public void delete(String[] ids) {
         // 删除Redis数据
         List<String> paramCodeList = baseDao.getParamCodeList(ids);
         String[] paramCodes = paramCodeList.toArray(new String[paramCodeList.size()]);
-        sysParamsRedis.delete(paramCodes);
+        if (paramCodes.length > 0) {
+            sysParamsRedis.delete(paramCodes);
+        }
 
         // 删除
         deleteBatchIds(Arrays.asList(ids));
