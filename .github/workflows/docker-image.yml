@@ -61,7 +61,7 @@ jobs:
           push: true
           tags: |
             ${{ env.IS_VERSION == 'true' && format('docker.io/{0}:server_{1}\ndocker.io/{0}:server_latest', env.REPO_NAME, env.VERSION) || format('docker.io/{0}:server_latest', env.REPO_NAME) }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
 
       # 构建 manager-api 镜像
       - name: Build and push manager-web
@@ -72,4 +72,4 @@ jobs:
           push: true
           tags: |
             ${{ env.IS_VERSION == 'true' && format('docker.io/{0}:web_{1}\ndocker.io/{0}:web_latest', env.REPO_NAME, env.VERSION) || format('docker.io/{0}:web_latest', env.REPO_NAME) }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
